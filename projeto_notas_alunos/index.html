@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Acadêmico</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #666;
+        }
+
+        h3 {
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin: 5px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .toggle-text {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .toggle-link {
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .toggle-link:hover {
+            color: #764ba2;
+        }
+
+        .user-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            margin-top: 20px;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Estilos para o sistema acadêmico */
+        .academic-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .academic-actions button {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .status-aprovado {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .status-reprovado {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Tela Home/Login -->
+        <div id="homeScreen" class="screen active">
+            <h1>Sistema Acadêmico</h1>
+            <h2>Faça login para continuar</h2>
+            
+            <div id="loginMessage" class="message"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">E-mail:</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Senha:</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit">Entrar</button>
+            </form>
+            
+            <div class="toggle-text">
+                Não tem uma conta? 
+                <span class="toggle-link" onclick="showRegister()">Cadastre-se</span>
+            </div>
+        </div>
+
+        <!-- Tela de Registro -->
+        <div id="registerScreen" class="screen">
+            <h1>Criar Conta</h1>
+            <h2>Preencha os dados abaixo</h2>
+            
+            <div id="registerMessage" class="message"></div>
+            
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="registerName">Nome:</label>
+                    <input type="text" id="registerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">E-mail:</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Senha:</label>
+                    <input type="password" id="registerPassword" minlength="6" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmar Senha:</label>
+                    <input type="password" id="confirmPassword" required>
+                </div>
+                <button type="submit">Criar Conta</button>
+            </form>
+            
+            <div class="toggle-text">
+                Já tem uma conta? 
+                <span class="toggle-link" onclick="showLogin()">Faça login</span>
+            </div>
+        </div>
+
+        <!-- Tela Principal -->
+        <div id="mainScreen" class="screen">
+            <h1>Sistema Acadêmico</h1>
+            <h2>Bem-vindo ao sistema!</h2>
+            
+            <div class="user-info">
+                <h3>Informações do Usuário</h3>
+                <p><strong>Nome:</strong> <span id="userName">-</span></p>
+                <p><strong>E-mail:</strong> <span id="userEmail">-</span></p>
+                <p><strong>Último acesso:</strong> <span id="lastAccess">-</span></p>
+            </div>
+
+            <!-- Sistema Acadêmico -->
+            <div class="academic-system">
+                <div class="academic-actions">
+                    <button onclick="showStudents()">Gerenciar Alunos</button>
+                    <button onclick="showGrades()">Lançar Notas</button>
+                    <button onclick="showAttendance()">Lançar Faltas</button>
+                    <button onclick="showReports()">Relatórios</button>
+                </div>
+
+                <!-- Gerenciar Alunos -->
+                <div id="studentsSection">
+                    <h3>Gerenciar Alunos</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="studentName">Nome do Aluno:</label>
+                            <input type="text" id="studentName" placeholder="Digite o nome do aluno">
+                        </div>
+                        <div class="form-group">
+                            <label for="studentMatricula">Matrícula:</label>
+                            <input type="text" id="studentMatricula" placeholder="Número da matrícula">
+                        </div>
+                    </div>
+                    <button onclick="addStudent()">Adicionar Aluno</button>
+                    
+                    <div class="table-container">
+                        <table id="studentsTable">
+                            <thead>
+                                <tr>
+                                    <th>Matrícula</th>
+                                    <th>Nome</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTableBody">
+                                <!-- Dados dos alunos serão inseridos aqui -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Lançar Notas -->
+                <div id="gradesSection" style="display: none;">
+                    <h3>Lançar Notas</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="gradeStudent">Aluno:</label>
+                            <select id="gradeStudent">
+                                <option value="">Selecione um aluno</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="gradeSubject">Disciplina:</label>
+                            <input type="text" id="gradeSubject" placeholder="Nome da disciplina">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="gradeValue">Nota:</label>
+                            <input type="number" id="gradeValue" min="0" max="10" step="0.1" placeholder="0.0 a 10.0">
+                        </div>
+                        <div class="form-group">
+                            <label for="gradeBimestre">Bimestre:</label>
+                            <select id="gradeBimestre">
+                                <option value="1">1º Bimestre</option>
+                                <option value="2">2º Bimestre</option>
+                                <option value="3">3º Bimestre</option>
+                                <option value="4">4º Bimestre</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="addGrade()">Lançar Nota</button>
+                    
+                    <div class="table-container">
+                        <table id="gradesTable">
+                            <thead>
+                                <tr>
+                                    <th>Aluno</th>
+                                    <th>Disciplina</th>
+                                    <th>Nota</th>
+                                    <th>Bimestre</th>
+                                    <th>Situação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gradesTableBody">
+                                <!-- Dados das notas serão inseridos aqui -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Lançar Faltas -->
+                <div id="attendanceSection" style="display: none;">
+                    <h3>Lançar Faltas</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="attendanceStudent">Aluno:</label>
+                            <select id="attendanceStudent">
+                                <option value="">Selecione um aluno</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="attendanceDate">Data:</label>
+                            <input type="date" id="attendanceDate">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="attendanceSubject">Disciplina:</label>
+                            <input type="text" id="attendanceSubject" placeholder="Nome da disciplina">
+                        </div>
+                        <div class="form-group">
+                            <label for="attendanceJustified">Justificada:</label>
+                            <select id="attendanceJustified">
+                                <option value="false">Não</option>
+                                <option value="true">Sim</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="addAttendance()">Lançar Falta</button>
+                    
+                    <div class="table-container">
+                        <table id="attendanceTable">
+                            <thead>
+                                <tr>
+                                    <th>Aluno</th>
+                                    <th>Disciplina</th>
+                                    <th>Data</th>
+                                    <th>Justificada</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendanceTableBody">
+                                <!-- Dados das faltas serão inseridos aqui -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Relatórios -->
+                <div id="reportsSection" style="display: none;">
+                    <h3>Relatórios</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="reportStudent">Aluno:</label>
+                            <select id="reportStudent">
+                                <option value="">Selecione um aluno</option>
+                            </select>
+                        </div>
+                        <button onclick="generateStudentReport()">Gerar Relatório do Aluno</button>
+                    </div>
+                    
+                    <div id="studentReport" class="table-container" style="display: none;">
+                        <h4>Relatório do Aluno</h4>
+                        <div id="reportContent">
+                            <!-- Conteúdo do relatório será inserido aqui -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="logout-btn" onclick="logout()">Sair</button>
+        </div>
+    </div>
+
+    <script>
+        // Simulação de banco de dados local
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+        let students = JSON.parse(localStorage.getItem('students')) || [];
+        let grades = JSON.parse(localStorage.getItem('grades')) || [];
+        let attendance = JSON.parse(localStorage.getItem('attendance')) || [];
+
+        // Elementos das telas
+        const homeScreen = document.getElementById('homeScreen');
+        const registerScreen = document.getElementById('registerScreen');
+        const mainScreen = document.getElementById('mainScreen');
+
+        // Elementos de mensagem
+        const loginMessage = document.getElementById('loginMessage');
+        const registerMessage = document.getElementById('registerMessage');
+
+        // Seções do sistema acadêmico
+        const studentsSection = document.getElementById('studentsSection');
+        const gradesSection = document.getElementById('gradesSection');
+        const attendanceSection = document.getElementById('attendanceSection');
+        const reportsSection = document.getElementById('reportsSection');
+
+        // Verificar se já está logado ao carregar a página
+        document.addEventListener('DOMContentLoaded', function() {
+            if (currentUser) {
+                showMainScreen();
+            } else {
+                showLogin();
+            }
+        });
+
+        // Funções para alternar entre telas
+        function showLogin() {
+            homeScreen.classList.add('active');
+            registerScreen.classList.remove('active');
+            mainScreen.classList.remove('active');
+            clearMessages();
+        }
+
+        function showRegister() {
+            homeScreen.classList.remove('active');
+            registerScreen.classList.add('active');
+            mainScreen.classList.remove('active');
+            clearMessages();
+        }
+
+        function showMainScreen() {
+            homeScreen.classList.remove('active');
+            registerScreen.classList.remove('active');
+            mainScreen.classList.add('active');
+            
+            // Preencher informações do usuário
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userEmail').textContent = currentUser.email;
+            document.getElementById('lastAccess').textContent = new Date().toLocaleString();
+            
+            // Carregar dados do sistema acadêmico
+            loadAcademicData();
+        }
+
+        // Limpar mensagens
+        function clearMessages() {
+            loginMessage.style.display = 'none';
+            registerMessage.style.display = 'none';
+        }
+
+        // Mostrar mensagem
+        function showMessage(element, message, type) {
+            element.textContent = message;
+            element.className = `message ${type}`;
+            element.style.display = 'block';
+        }
+
+        // Formulário de login
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // Validar credenciais
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                currentUser = {
+                    name: user.name,
+                    email: user.email
+                };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                showMainScreen();
+            } else {
+                showMessage(loginMessage, 'E-mail ou senha incorretos!', 'error');
+            }
+        });
+
+        // Formulário de registro
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Validações
+            if (password !== confirmPassword) {
+                showMessage(registerMessage, 'As senhas não coincidem!', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage(registerMessage, 'A senha deve ter pelo menos 6 caracteres!', 'error');
+                return;
+            }
+
+            // Verificar se usuário já existe
+            if (users.find(u => u.email === email)) {
+                showMessage(registerMessage, 'Este e-mail já está cadastrado!', 'error');
+                return;
+            }
+
+            // Criar novo usuário
+            const newUser = {
+                name: name,
+                email: email,
+                password: password
+            };
+
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+
+            showMessage(registerMessage, 'Conta criada com sucesso! Faça login.', 'success');
+            
+            // Limpar formulário
+            document.getElementById('registerForm').reset();
+            
+            // Voltar para tela de login após 2 segundos
+            setTimeout(() => {
+                showLogin();
+            }, 2000);
+        });
+
+        // Função de logout
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            showLogin();
+            
+            // Limpar formulários
+            document.getElementById('loginForm').reset();
+            document.getElementById('registerForm').reset();
+        }
+
+        // ========== SISTEMA ACADÊMICO ==========
+
+        function loadAcademicData() {
+            loadStudents();
+            updateStudentSelects();
+            loadGrades();
+            loadAttendance();
+        }
+
+        // Funções para mostrar seções
+        function showStudents() {
+            studentsSection.style.display = 'block';
+            gradesSection.style.display = 'none';
+            attendanceSection.style.display = 'none';
+            reportsSection.style.display = 'none';
+        }
+
+        function showGrades() {
+            studentsSection.style.display = 'none';
+            gradesSection.style.display = 'block';
+            attendanceSection.style.display = 'none';
+            reportsSection.style.display = 'none';
+            updateStudentSelects();
+        }
+
+        function showAttendance() {
+            studentsSection.style.display = 'none';
+            gradesSection.style.display = 'none';
+            attendanceSection.style.display = 'block';
+            reportsSection.style.display = 'none';
+            updateStudentSelects();
+        }
+
+        function showReports() {
+            studentsSection.style.display = 'none';
+            gradesSection.style.display = 'none';
+            attendanceSection.style.display = 'none';
+            reportsSection.style.display = 'block';
+            updateStudentSelects();
+        }
+
+        // Gerenciar Alunos
+        function loadStudents() {
+            const tbody = document.getElementById('studentsTableBody');
+            tbody.innerHTML = '';
+            
+            students.forEach((student, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.matricula}</td>
+                    <td>${student.name}</td>
+                    <td>
+                        <button onclick="deleteStudent(${index})" class="btn-secondary">Excluir</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function addStudent() {
+            const name = document.getElementById('studentName').value;
+            const matricula = document.getElementById('studentMatricula').value;
+            
+            if (!name || !matricula) {
+                alert('Preencha todos os campos!');
+                return;
+            }
+            
+            const newStudent = {
+                id: Date.now(),
+                name: name,
+                matricula: matricula
+            };
+            
+            students.push(newStudent);
+            localStorage.setItem('students', JSON.stringify(students));
+            
+            document.getElementById('studentName').value = '';
+            document.getElementById('studentMatricula').value = '';
+            
+            loadStudents();
+            updateStudentSelects();
+            alert('Aluno adicionado com sucesso!');
+        }
+
+        function deleteStudent(index) {
+            if (confirm('Tem certeza que deseja excluir este aluno?')) {
+                students.splice(index, 1);
+                localStorage.setItem('students', JSON.stringify(students));
+                loadStudents();
+                updateStudentSelects();
+            }
+        }
+
+        function updateStudentSelects() {
+            const selects = [
+                'gradeStudent',
+                'attendanceStudent',
+                'reportStudent'
+            ];
+            
+            selects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                select.innerHTML = '<option value="">Selecione um aluno</option>';
+                
+                students.forEach(student => {
+                    const option = document.createElement('option');
+                    option.value = student.id;
+                    option.textContent = `${student.name} (${student.matricula})`;
+                    select.appendChild(option);
+                });
+            });
+        }
+
+        // Lançar Notas
+        function loadGrades() {
+            const tbody = document.getElementById('gradesTableBody');
+            tbody.innerHTML = '';
+            
+            grades.forEach(grade => {
+                const student = students.find(s => s.id == grade.studentId);
+                const situation = grade.grade >= 6 ? 'Aprovado' : 'Reprovado';
+                const situationClass = grade.grade >= 6 ? 'status-aprovado' : 'status-reprovado';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student ? student.name : 'N/A'}</td>
+                    <td>${grade.subject}</td>
+                    <td>${grade.grade.toFixed(1)}</td>
+                    <td>${grade.bimestre}º Bimestre</td>
+                    <td class="${situationClass}">${situation}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function addGrade() {
+            const studentId = document.getElementById('gradeStudent').value;
+            const subject = document.getElementById('gradeSubject').value;
+            const grade = parseFloat(document.getElementById('gradeValue').value);
+            const bimestre = document.getElementById('gradeBimestre').value;
+            
+            if (!studentId || !subject || isNaN(grade)) {
+                alert('Preencha todos os campos!');
+                return;
+            }
+            
+            if (grade < 0 || grade > 10) {
+                alert('A nota deve estar entre 0 e 10!');
+                return;
+            }
+            
+            const newGrade = {
+                id: Date.now(),
+                studentId: parseInt(studentId),
+                subject: subject,
+                grade: grade,
+                bimestre: bimestre,
+                date: new Date().toISOString()
+            };
+            
+            grades.push(newGrade);
+            localStorage.setItem('grades', JSON.stringify(grades));
+            
+            document.getElementById('gradeSubject').value = '';
+            document.getElementById('gradeValue').value = '';
+            
+            loadGrades();
+            alert('Nota lançada com sucesso!');
+        }
+
+        // Lançar Faltas
+        function loadAttendance() {
+            const tbody = document.getElementById('attendanceTableBody');
+            tbody.innerHTML = '';
+            
+            attendance.forEach((record, index) => {
+                const student = students.find(s => s.id == record.studentId);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student ? student.name : 'N/A'}</td>
+                    <td>${record.subject}</td>
+                    <td>${new Date(record.date).toLocaleDateString('pt-BR')}</td>
+                    <td>${record.justified ? 'Sim' : 'Não'}</td>
+                    <td>
+                        <button onclick="deleteAttendance(${index})" class="btn-secondary">Excluir</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function addAttendance() {
+            const studentId = document.getElementById('attendanceStudent').value;
+            const subject = document.getElementById('attendanceSubject').value;
+            const date = document.getElementById('attendanceDate').value;
+            const justified = document.getElementById('attendanceJustified').value === 'true';
+            
+            if (!studentId || !subject || !date) {
+                alert('Preencha todos os campos!');
+                return;
+            }
+            
+            const newAttendance = {
+                id: Date.now(),
+                studentId: parseInt(studentId),
+                subject: subject,
+                date: date,
+                justified: justified
+            };
+            
+            attendance.push(newAttendance);
+            localStorage.setItem('attendance', JSON.stringify(attendance));
+            
+            document.getElementById('attendanceSubject').value = '';
+            document.getElementById('attendanceDate').value = '';
+            
+            loadAttendance();
+            alert('Falta lançada com sucesso!');
+        }
+
+        function deleteAttendance(index) {
+            if (confirm('Tem certeza que deseja excluir este registro de falta?')) {
+                attendance.splice(index, 1);
+                localStorage.setItem('attendance', JSON.stringify(attendance));
+                loadAttendance();
+            }
+        }
+
+        // Relatórios
+        function generateStudentReport() {
+            const studentId = document.getElementById('reportStudent').value;
+            
+            if (!studentId) {
+                alert('Selecione um aluno!');
+                return;
+            }
+            
+            const student = students.find(s => s.id == parseInt(studentId));
+            const studentGrades = grades.filter(g => g.studentId == parseInt(studentId));
+            const studentAttendance = attendance.filter(a => a.studentId == parseInt(studentId));
+            
+            let reportHTML = `
+                <h4>Dados do Aluno</h4>
+                <p><strong>Nome:</strong> ${student.name}</p>
+                <p><strong>Matrícula:</strong> ${student.matricula}</p>
+                
+                <h4>Notas</h4>
+            `;
+            
+            if (studentGrades.length > 0) {
+                reportHTML += `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Disciplina</th>
+                                <th>Nota</th>
+                                <th>Bimestre</th>
+                                <th>Situação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                studentGrades.forEach(grade => {
+                    const situation = grade.grade >= 6 ? 'Aprovado' : 'Reprovado';
+                    const situationClass = grade.grade >= 6 ? 'status-aprovado' : 'status-reprovado';
+                    
+                    reportHTML += `
+                        <tr>
+                            <td>${grade.subject}</td>
+                            <td>${grade.grade.toFixed(1)}</td>
+                            <td>${grade.bimestre}º</td>
+                            <td class="${situationClass}">${situation}</td>
+                        </tr>
+                    `;
+                });
+                
+                reportHTML += `</tbody></table>`;
+            } else {
+                reportHTML += '<p>Nenhuma nota lançada para este aluno.</p>';
+            }
+            
+            reportHTML += `<h4>Faltas: ${studentAttendance.length}</h4>`;
+            
+            if (studentAttendance.length > 0) {
+                reportHTML += `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Disciplina</th>
+                                <th>Data</th>
+                                <th>Justificada</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                studentAttendance.forEach(record => {
+                    reportHTML += `
+                        <tr>
+                            <td>${record.subject}</td>
+                            <td>${new Date(record.date).toLocaleDateString('pt-BR')}</td>
+                            <td>${record.justified ? 'Sim' : 'Não'}</td>
+                        </tr>
+                    `;
+                });
+                
+                reportHTML += `</tbody></table>`;
+            } else {
+                reportHTML += '<p>Nenhuma falta registrada para este aluno.</p>';
+            }
+            
+            document.getElementById('reportContent').innerHTML = reportHTML;
+            document.getElementById('studentReport').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
